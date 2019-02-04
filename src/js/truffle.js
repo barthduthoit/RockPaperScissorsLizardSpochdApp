@@ -27,13 +27,22 @@ var rpsContractABI = [
 		"type": "function"
 	},
 	{
-		"constant": true,
+		"constant": false,
 		"inputs": [],
 		"name": "unroll",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "canMakeMove",
 		"outputs": [
 			{
 				"name": "",
-				"type": "int256"
+				"type": "bool"
 			}
 		],
 		"payable": false,
@@ -90,11 +99,29 @@ var rpsContractABI = [
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [],
+		"name": "ready",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "winner",
+				"type": "int256"
+			}
+		],
+		"name": "unrolled",
+		"type": "event"
 	}
 ];
 
 var rpsContract = web3.eth.contract(rpsContractABI);
-var rpsContractInstance = rpsContract.at("0x2bcfab658dd5be85142c7f94bf8244a4074e823f");
+var rpsContractInstance = rpsContract.at("0x3217a3d7de6c62ee01f8c3039be6779d43921107");
 
 // For testing purposes only
 var $me = 1;
@@ -103,3 +130,31 @@ if (rpsContractInstance.isRegistered()) {
     web3.eth.defaultAccount = web3.eth.accounts[1];
     $me = 2;
 }
+
+var readyEvent = rpsContractInstance.ready();
+readyEvent.watch(function(error, result){
+	if (!error) {
+		$("#waitMenu").hide();
+		$("#makeMove").show();
+		$("#playMenu").show();
+	}
+	else {
+		console.log(error);
+	}
+});
+
+var unrolledEvent = rpsContractInstance.unrolled();
+unrolledEvent.watch(function(error, result){
+	if (!error) {
+		$winner = result.args.winner;
+        if ($winner == $me) {
+            $("#win").show();
+        }
+        else {
+            $("#loose").show();
+        }
+	}
+	else {
+		console.log(error);
+	}
+});
