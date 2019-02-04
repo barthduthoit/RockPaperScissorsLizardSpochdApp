@@ -9,14 +9,14 @@ contract RockPaperCissors{
     string player2Move;
     
     function isRegistered() public constant returns (bool){
-        if ((player1 != msg.sender) && (player2 != msg.sender)){
+        if ((player1 == msg.sender) || (player2 == msg.sender)){
             return true;
         }
         return false;
     }
     
     function register(){
-        if (isRegistered()){
+        if  (! isRegistered()){
             if (player1 == 0) player1 = msg.sender;
             else if (player2 == 0) player2 = msg.sender;
         }
@@ -46,12 +46,16 @@ contract RockPaperCissors{
         player2Move = "";
     }
     
+    function isReady() public constant returns (bool){
+        return ((bytes(player1Move).length > 0) && (bytes(player2Move).length > 0));
+    }
+    
     function unroll() public constant returns (int){
-        if ((bytes(player2Move).length > 0) && (bytes(player2Move).length > 0)) {
+        if (isReady()) {
             int winner = getWinner();
             reset();
             return winner;
         }
         
     }
-}
+}}
