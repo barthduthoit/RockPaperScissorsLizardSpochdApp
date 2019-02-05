@@ -112,7 +112,7 @@ var rpsContractABI = [
 			{
 				"indexed": false,
 				"name": "winner",
-				"type": "int256"
+				"type": "address"
 			}
 		],
 		"name": "unrolled",
@@ -121,7 +121,7 @@ var rpsContractABI = [
 ];
 
 var rpsContract = web3.eth.contract(rpsContractABI);
-var rpsContractInstance = rpsContract.at("0x00571f376838ba4ab523ad2806d8eafe456ed56c");
+var rpsContractInstance = rpsContract.at("0xe8627ab70d53b5362ef39101a3c755ff62eb6bb3");
 
 // For testing purposes only
 var $me = 1;
@@ -148,7 +148,7 @@ var unrolledEvent = rpsContractInstance.unrolled();
 unrolledEvent.watch(function(error, result){
 	if (!error) {
 		$winner = result.args.winner;
-        if ($winner == $me) {
+        if ($winner == web3.eth.defaultAccount) {
             $("#win").show();
         }
         else if ($winner == 0){
@@ -157,7 +157,8 @@ unrolledEvent.watch(function(error, result){
         else {
             $("#loose").show();
         }
-        $("#replay").parent().show();
+        $("#results").show();
+        $("#replayMenu").show();
 	}
 	else {
 		console.log(error);
