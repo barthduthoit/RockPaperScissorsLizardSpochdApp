@@ -9,7 +9,7 @@ contract RockPaperCissors{
     string player2Move;
     
     event ready();
-    event unrolled(int winner);
+    event unrolled(address winner);
 
 
     function isRegistered() public constant returns (bool){
@@ -47,18 +47,45 @@ contract RockPaperCissors{
     }
 
     function getWinner() public constant returns (int) {
-        if ((keccak256(player1Move)==keccak256("rock") && keccak256(player2Move)==keccak256("scissors")) ||
-            (keccak256(player1Move)==keccak256("paper") && keccak256(player2Move)==keccak256("rock")) ||
-            (keccak256(player1Move)==keccak256("scissors") && keccak256(player2Move)==keccak256("paper"))){
-            return 1;
+        if (isReady()) {
+            // Player 1 rock wins
+            if (keccak256(player1Move)==keccak256("rock") &&
+                    (keccak256(player2Move)==keccak256("scissors") ||
+                    keccak256(player2Move)==keccak256("lizard"))) {
+                return 1;
+            }
+            // Player 1 paper wins
+            else if (keccak256(player1Move)==keccak256("paper") &&
+                    (keccak256(player2Move)==keccak256("rock") ||
+                    keccak256(player2Move)==keccak256("spock"))) {
+                return 1;
+            }
+            // Player 1 scissors wins
+            else if (keccak256(player1Move)==keccak256("scissors") &&
+                    (keccak256(player2Move)==keccak256("paper") ||
+                    keccak256(player2Move)==keccak256("lizard"))) {
+                return 1;
+            }
+            // Player 1 spock wins
+            else if (keccak256(player1Move)==keccak256("spock") &&
+                    (keccak256(player2Move)==keccak256("scissors") ||
+                    keccak256(player2Move)==keccak256("rock"))) {
+                return 1;
+            }
+            // Player 1 lizard wins
+            else if (keccak256(player1Move)==keccak256("lizard") &&
+                    (keccak256(player2Move)==keccak256("paper") ||
+                    keccak256(player2Move)==keccak256("spock"))) {
+                return 1;
+            }
+            else if (keccak256(player1Move)==keccak256(player2Move)){
+                return 0;
+            }
+            else return 2;
         }
-        else if (keccak256(player1Move)==keccak256(player2Move)){
-            return 0;
-        }
-        else return 2;
     }
 
-    function reset(){
+    function resetGame() public{
         player1 = 0;
         player2 = 0;
         player1Move = "";
@@ -72,8 +99,10 @@ contract RockPaperCissors{
     function unroll() public {
         if (isReady()) {
             int winner = getWinner();
-            reset();
-            emit unrolled(winner);
+            if (winner==1) unrolled(player1);
+            else if (winner==2) unrolled(player2);
+            else unrolled(0);
+            resetGame();
         }
 
     }
