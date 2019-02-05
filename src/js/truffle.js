@@ -94,7 +94,7 @@ var rpsContractABI = [
 	{
 		"constant": false,
 		"inputs": [],
-		"name": "reset",
+		"name": "resetGame",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -121,7 +121,7 @@ var rpsContractABI = [
 ];
 
 var rpsContract = web3.eth.contract(rpsContractABI);
-var rpsContractInstance = rpsContract.at("0x3217a3d7de6c62ee01f8c3039be6779d43921107");
+var rpsContractInstance = rpsContract.at("0x00571f376838ba4ab523ad2806d8eafe456ed56c");
 
 // For testing purposes only
 var $me = 1;
@@ -143,6 +143,7 @@ readyEvent.watch(function(error, result){
 	}
 });
 
+var $winner = 0;
 var unrolledEvent = rpsContractInstance.unrolled();
 unrolledEvent.watch(function(error, result){
 	if (!error) {
@@ -150,9 +151,13 @@ unrolledEvent.watch(function(error, result){
         if ($winner == $me) {
             $("#win").show();
         }
+        else if ($winner == 0){
+            $("#draw").show();
+        }
         else {
             $("#loose").show();
         }
+        $("#replay").parent().show();
 	}
 	else {
 		console.log(error);
