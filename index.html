@@ -36,6 +36,14 @@
                         <a class="nav-link" href="#play" id="play">Play <span class="sr-only">(current)</span></a>
                     </li>
                 </ul>
+                <div class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a>Account:</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="ethAccount"></a>
+                    </li>
+                </div>
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" href=#rules id="rules">Rules</a>
@@ -86,7 +94,7 @@
                     </div>
 
                     <div class="col-6">
-                        <div class="row" id="results" style="display:none">
+                        <div class="row" id="results">
                             <div class="col-12 text-center resultsMenu" id="win" style="padding-top:5%; display:none">
                             <span class="align-middle" style="color:green">
                                 <img src="src/img/results/win.png" alt="win" style="height:100px">
@@ -100,10 +108,20 @@
                             </span>
                             </div>
                             <div class="col-12 text-center resultsMenu" id="draw" style="padding-top:5%; display:none">
-                            <span class="align-middle" style="color:white">
+                            <span class="align-middle" style="color:black">
                                 <img src="src/img/results/draw.png" alt="loose" style="height:100px">
                                 It's a draw!
                             </span>
+                            </div>
+                            <div class="col-12 text-center resultsMenu" id="waitMenuResults" style="padding-top:5%; display:none">
+                                <div class="row">
+                                    <div class="col-4 my-auto" style="text-align:right">
+                                        <img src="src/img/loader.gif" style="height:55px"/>
+                                    </div>
+                                    <div class="col-8 my-auto" style="text-align:left">
+                                        <h3>Waiting...</h3>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

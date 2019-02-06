@@ -1,10 +1,31 @@
 $(document).ready(function() {
 
+    var callback  = function(err, result) {if (err) console.log(err)};
+    $("#ethAccount").text(web3.eth.accounts[0])
+    window.ethereum.on('accountsChanged', function (accounts) {
+      $("#ethAccount").text(web3.eth.accounts[0]);
+    })
+
+
+
+    var callback_args = {from: web3.eth.accounts[0], value: 0, gas: 100000};
+
     $("#start").click(function(){
-        $("#play").click();
-        $("#startMenu").hide();
-        $("#waitMenu").show();
-        rpsContractInstance.register();
+        rpsContractInstance.canRegister.call(callback_args,
+                                               function(err, result) {
+                                                    if (err) {console.log(err)}
+                                                    else {
+                                                        if (result) {
+                                                            console.log("Registering...");
+                                                            rpsContractInstance.register(callback_args, callback);
+                                                            $("#play").click();
+                                                            $("#startMenu").hide();
+                                                            $("#waitMenu").show();
+                                                        }
+                                                        else console.log("Could not register");
+                                                    }
+                                               });
+
     });
 
     $("#replay").click(function(){
@@ -15,15 +36,20 @@ $(document).ready(function() {
 
     var $winner = 0
     $(".zoom").click(function(){
-        if (rpsContractInstance.canMakeMove()) {
-            $(this).css({"background-color": "rgb(198,38,65)"});
-        }
-        $("#playMenu").find(".move").removeClass("zoom");
-        console.log($(this).attr('id'));
-        rpsContractInstance.makeMove($(this).attr('id'));
-        if (rpsContractInstance.isReady()) {
-            rpsContractInstance.unroll();
-        }
+        var moveButton = $(this);
+        rpsContractInstance.canMakeMove.call(callback_args,
+                                               function(err, result) {
+                                                    if (err) {console.log(err)}
+                                                    else {
+                                                        if (result) {
+                                                            rpsContractInstance.makeMove(moveButton.attr('id'), callback_args, callback);
+                                                            moveButton.css({"background-color": "rgb(198,38,65)"});
+                                                            $("#playMenu").find(".move").removeClass("zoom");
+                                                            $("#waitMenuResults").show();
+                                                        }
+                                                        else console.log("Cannot make a move");
+                                                    }
+                                               });
     });
 
     function reset(){
@@ -32,7 +58,6 @@ $(document).ready(function() {
         $("#makeMove").hide();
         $("#replayMenu").hide();
         $("#results").children().hide();
-        $("#start").click();
         $("#playMenu").find(".move").addClass("zoom");
         $(".zoom").css("background-color", "");
     }
@@ -82,7 +107,5 @@ $(document).ready(function() {
         $("#rulesMenu").hide();
         $("#gameMenu").show();
     });
-
-
 
 });

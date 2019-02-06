@@ -1,13 +1,20 @@
-var Web3 = require('web3');
-var web3 = new Web3();
-web3.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
+// var Web3 = require('web3');
+//var web3 = new Web3();
+//web3.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
+web3.setProvider(new web3.providers.HttpProvider("https://rinkeby.infura.io"));
+ethereum.enable();
 
 var rpsContractABI = [
 	{
 		"constant": false,
 		"inputs": [],
 		"name": "register",
-		"outputs": [],
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
 		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -20,6 +27,48 @@ var rpsContractABI = [
 			{
 				"name": "",
 				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "isUnrollReady",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "canRegister",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "player2",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
 			}
 		],
 		"payable": false,
@@ -78,26 +127,26 @@ var rpsContractABI = [
 		"type": "function"
 	},
 	{
-		"constant": true,
-		"inputs": [],
-		"name": "isReady",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"constant": false,
 		"inputs": [],
 		"name": "resetGame",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "player1",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -121,14 +170,40 @@ var rpsContractABI = [
 ];
 
 var rpsContract = web3.eth.contract(rpsContractABI);
-var rpsContractInstance = rpsContract.at("0xe8627ab70d53b5362ef39101a3c755ff62eb6bb3");
+
+var rpsContractInstance = rpsContract.at("0xaa4b91ac3cfcbe47730c0ceba4ff2a48f5b09026");
 
 // For testing purposes only
-var $me = 1;
-web3.eth.defaultAccount = web3.eth.accounts[0];
-if (rpsContractInstance.isRegistered()) {
-    web3.eth.defaultAccount = web3.eth.accounts[1];
-    $me = 2;
+//var $me = 1;
+//web3.eth.defaultAccount = web3.eth.accounts[0];
+//if (rpsContractInstance.isRegistered()) {
+//    web3.eth.defaultAccount = web3.eth.accounts[1];
+//    $me = 2;
+//}
+
+
+// Deployment
+function isInstalled() {
+   if (typeof web3 !== 'undefined'){
+      console.log('MetaMask is installed')
+   }
+   else{
+      console.log('MetaMask is not installed')
+   }
+}
+
+function isLocked() {
+   web3.eth.getAccounts(function(err, accounts){
+      if (err != null) {
+         console.log(err)
+      }
+      else if (accounts.length === 0) {
+         console.log('MetaMask is locked')
+      }
+      else {
+         console.log('MetaMask is unlocked')
+      }
+   });
 }
 
 var readyEvent = rpsContractInstance.ready();
@@ -148,6 +223,7 @@ var unrolledEvent = rpsContractInstance.unrolled();
 unrolledEvent.watch(function(error, result){
 	if (!error) {
 		$winner = result.args.winner;
+		$("#waitMenuResults").hide();
         if ($winner == web3.eth.defaultAccount) {
             $("#win").show();
         }
@@ -157,7 +233,6 @@ unrolledEvent.watch(function(error, result){
         else {
             $("#loose").show();
         }
-        $("#results").show();
         $("#replayMenu").show();
 	}
 	else {
