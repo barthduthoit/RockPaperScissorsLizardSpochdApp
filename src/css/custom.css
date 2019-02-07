@@ -51,6 +51,12 @@ h4 {
     font-size: 1.3rem;
 }
 
+h5 {
+    padding-top:5%;
+    color: #333333;
+    font-size: 1rem;
+}
+
 .navbar-brand {
     font-size: 20px;
     font-weight: 3200;

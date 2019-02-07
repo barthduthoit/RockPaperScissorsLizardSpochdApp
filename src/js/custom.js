@@ -1,6 +1,8 @@
 $(document).ready(function() {
 
-    var callback  = function(err, result) {if (err) console.log(err)};
+    window.default_transaction_args = {from: web3.eth.accounts[0], value: 0, gas: 100000};
+    window.register_transaction_args = {from: web3.eth.accounts[0], value: 1000000000000001, gas: 100000};
+    window.callback  = function(err, result) {if (err) console.log(err)};
     $("#ethAccount").text(web3.eth.accounts[0])
     window.ethereum.on('accountsChanged', function (accounts) {
       $("#ethAccount").text(web3.eth.accounts[0]);
@@ -8,21 +10,22 @@ $(document).ready(function() {
 
 
 
-    var callback_args = {from: web3.eth.accounts[0], value: 0, gas: 100000};
-
     $("#start").click(function(){
-        rpsContractInstance.canRegister.call(callback_args,
+        rpsContractInstance.canRegister.call(window.default_transaction_args,
                                                function(err, result) {
                                                     if (err) {console.log(err)}
                                                     else {
                                                         if (result) {
                                                             console.log("Registering...");
-                                                            rpsContractInstance.register(callback_args, callback);
+                                                            rpsContractInstance.register(window.register_transaction_args, window.callback);
                                                             $("#play").click();
                                                             $("#startMenu").hide();
                                                             $("#waitMenu").show();
                                                         }
-                                                        else console.log("Could not register");
+                                                        else {
+                                                            console.log("Could not register") ;
+                                                            console.log(err);
+                                                        }
                                                     }
                                                });
 
@@ -34,17 +37,21 @@ $(document).ready(function() {
     });
 
 
+
     var $winner = 0
     $(".zoom").click(function(){
         var moveButton = $(this);
-        rpsContractInstance.canMakeMove.call(callback_args,
+        window.move = moveButton.attr('id');
+        rpsContractInstance.playersReady_canMakeMove.call(window.default_transaction_args,
                                                function(err, result) {
                                                     if (err) {console.log(err)}
                                                     else {
                                                         if (result) {
-                                                            rpsContractInstance.makeMove(moveButton.attr('id'), callback_args, callback);
+                                                            window.password = Math.random().toString(36).substr(2);
+                                                            rpsContractInstance.makeMove(window.move+window.password, window.default_transaction_args, window.callback);
                                                             moveButton.css({"background-color": "rgb(198,38,65)"});
                                                             $("#playMenu").find(".move").removeClass("zoom");
+                                                            console.log(window.password+window.move)
                                                             $("#waitMenuResults").show();
                                                         }
                                                         else console.log("Cannot make a move");
@@ -60,6 +67,7 @@ $(document).ready(function() {
         $("#results").children().hide();
         $("#playMenu").find(".move").addClass("zoom");
         $(".zoom").css("background-color", "");
+        window.checkMoveEvent_triggered = false;
     }
 
     LeftCol = [["scissors" ,"cuts" ,"paper"],

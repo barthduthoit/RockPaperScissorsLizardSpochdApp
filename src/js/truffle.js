@@ -1,6 +1,3 @@
-// var Web3 = require('web3');
-//var web3 = new Web3();
-//web3.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
 web3.setProvider(new web3.providers.HttpProvider("https://rinkeby.infura.io"));
 ethereum.enable();
 
@@ -15,8 +12,8 @@ var rpsContractABI = [
 				"type": "bool"
 			}
 		],
-		"payable": false,
-		"stateMutability": "nonpayable",
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -36,11 +33,53 @@ var rpsContractABI = [
 	{
 		"constant": true,
 		"inputs": [],
+		"name": "moveFinished",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
 		"name": "isUnrollReady",
 		"outputs": [
 			{
 				"name": "",
 				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "cheatsPlayer1",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "player1MoveHash",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
 			}
 		],
 		"payable": false,
@@ -87,7 +126,21 @@ var rpsContractABI = [
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "canMakeMove",
+		"name": "getContractBalance",
+		"outputs": [
+			{
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "cheatsPlayer2",
 		"outputs": [
 			{
 				"name": "",
@@ -116,7 +169,7 @@ var rpsContractABI = [
 		"constant": false,
 		"inputs": [
 			{
-				"name": "move",
+				"name": "movePassword",
 				"type": "string"
 			}
 		],
@@ -127,12 +180,54 @@ var rpsContractABI = [
 		"type": "function"
 	},
 	{
+		"constant": true,
+		"inputs": [],
+		"name": "playersReady",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"constant": false,
 		"inputs": [],
 		"name": "resetGame",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "player1MoveClear",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "playersReady_canMakeMove",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -150,9 +245,61 @@ var rpsContractABI = [
 		"type": "function"
 	},
 	{
+		"constant": true,
+		"inputs": [],
+		"name": "player2MoveHash",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "player2MoveClear",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "movePassword",
+				"type": "string"
+			},
+			{
+				"name": "move",
+				"type": "string"
+			}
+		],
+		"name": "isCheating",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"anonymous": false,
 		"inputs": [],
 		"name": "ready",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [],
+		"name": "checkMove",
 		"type": "event"
 	},
 	{
@@ -167,44 +314,13 @@ var rpsContractABI = [
 		"name": "unrolled",
 		"type": "event"
 	}
-];
+]
+;
 
 var rpsContract = web3.eth.contract(rpsContractABI);
-
-var rpsContractInstance = rpsContract.at("0xaa4b91ac3cfcbe47730c0ceba4ff2a48f5b09026");
-
-// For testing purposes only
-//var $me = 1;
-//web3.eth.defaultAccount = web3.eth.accounts[0];
-//if (rpsContractInstance.isRegistered()) {
-//    web3.eth.defaultAccount = web3.eth.accounts[1];
-//    $me = 2;
-//}
+var rpsContractInstance = rpsContract.at("0xf8d5d80429983bbc32086cb8482e2c76e3fca64c");
 
 
-// Deployment
-function isInstalled() {
-   if (typeof web3 !== 'undefined'){
-      console.log('MetaMask is installed')
-   }
-   else{
-      console.log('MetaMask is not installed')
-   }
-}
-
-function isLocked() {
-   web3.eth.getAccounts(function(err, accounts){
-      if (err != null) {
-         console.log(err)
-      }
-      else if (accounts.length === 0) {
-         console.log('MetaMask is locked')
-      }
-      else {
-         console.log('MetaMask is unlocked')
-      }
-   });
-}
 
 var readyEvent = rpsContractInstance.ready();
 readyEvent.watch(function(error, result){
@@ -217,6 +333,21 @@ readyEvent.watch(function(error, result){
 		console.log(error);
 	}
 });
+
+window.checkMoveEvent_triggered = false;
+var checkMoveEvent = rpsContractInstance.checkMove();
+checkMoveEvent.watch(function(error, result){
+    if (!error && !window.checkMoveEvent_triggered) {
+        window.checkMoveEvent_triggered = true;
+        console.log("Checking cheating...")
+        var movePassword = window.move+window.password;
+        rpsContractInstance.isCheating(movePassword, window.move, window.default_transaction_args, window.callback);
+    }
+    else {
+        console.log(error);
+	}
+});
+
 
 var $winner = 0;
 var unrolledEvent = rpsContractInstance.unrolled();
