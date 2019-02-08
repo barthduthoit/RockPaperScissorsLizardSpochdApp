@@ -11,13 +11,13 @@ $(document).ready(function() {
 
 
     $("#start").click(function(){
-        rpsContractInstance.canRegister.call(window.default_transaction_args,
+        window.rpsContractInstance.canRegister.call(window.default_transaction_args,
                                                function(err, result) {
                                                     if (err) {console.log(err)}
                                                     else {
                                                         if (result) {
                                                             console.log("Registering...");
-                                                            rpsContractInstance.register(window.register_transaction_args, window.callback);
+                                                            window.rpsContractInstance.register(window.register_transaction_args, window.callback);
                                                             $("#play").click();
                                                             $("#startMenu").hide();
                                                             $("#waitMenu").show();
@@ -42,13 +42,13 @@ $(document).ready(function() {
     $(".zoom").click(function(){
         var moveButton = $(this);
         window.move = moveButton.attr('id');
-        rpsContractInstance.playersReady_canMakeMove.call(window.default_transaction_args,
+        window.rpsContractInstance.playersReady_canMakeMove.call(window.default_transaction_args,
                                                function(err, result) {
                                                     if (err) {console.log(err)}
                                                     else {
                                                         if (result) {
                                                             window.password = Math.random().toString(36).substr(2);
-                                                            rpsContractInstance.makeMove(window.move+window.password, window.default_transaction_args, window.callback);
+                                                            window.rpsContractInstance.makeMove(window.move+window.password, window.default_transaction_args, window.callback);
                                                             moveButton.css({"background-color": "rgb(198,38,65)"});
                                                             $("#playMenu").find(".move").removeClass("zoom");
                                                             console.log(window.password+window.move)
