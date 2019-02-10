@@ -4,7 +4,7 @@ ethereum.enable();
 
 $.getJSON("build/contracts/RPSLS.json", function(data) {
 
-    const contractAddress = "0xdeade45f392a5b7a38d55d5d4058bb049965139d";
+    const contractAddress = "0x441f4e488caa5118cc2ec768167f0882199cbc0f";
     const rpsContractABI = data.abi;
     var rpsContract = web3.eth.contract(rpsContractABI);
     window.rpsContractInstance = rpsContract.at(contractAddress);

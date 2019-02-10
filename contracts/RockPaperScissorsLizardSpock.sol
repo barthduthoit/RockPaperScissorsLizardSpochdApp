@@ -4,7 +4,7 @@ contract RPSLS{
 
     address public player1;
     address public player2;
-    
+
     // Players moves hashed with a salt
     bytes32 public player1MoveHash;
     bytes32 public player2MoveHash;
@@ -16,7 +16,7 @@ contract RPSLS{
     bool public cheatsPlayer1 = true;
     bool public cheatsPlayer2 = true;
 
-    function resetGame() public{
+    function resetGame() private{
         player1 = 0;
         player2 = 0;
         player1MoveHash = bytes32(0);
@@ -53,10 +53,8 @@ contract RPSLS{
 
     // Check amount sent
     modifier checkAmount(uint amount){
-        if (msg.value < amount)
-            revert();
-        else
-            _;
+        require(msg.value >= amount);
+        _;
     }
 
     // Register a player if he is not registred yet and paid enough
@@ -105,34 +103,32 @@ contract RPSLS{
     }
 
     function getWinner() public constant returns (int) {
-        if (isUnrollReady()) {
-            // Player 1 rock wins
-            if (player1MoveClear==rock && (player2MoveClear==scissors || player2MoveClear==lizard)) {
-                return 1;
-            }
-            // Player 1 paper wins
-            else if (player1MoveClear==paper && (player2MoveClear==rock || player2MoveClear==spock)) {
-                return 1;
-            }
-            // Player 1 scissors wins
-            else if (player1MoveClear==scissors && (player2MoveClear==paper || player2MoveClear==lizard)) {
-                return 1;
-            }
-            // Player 1 spock wins
-            else if (player1MoveClear==spock && (player2MoveClear==scissors || player2MoveClear==rock)) {
-                return 1;
-            }
-            // Player 1 lizard wins
-            else if (player1MoveClear==lizard && (player2MoveClear==paper || player2MoveClear==spock)) {
-                return 1;
-            }
-            // Draw
-            else if (player1MoveClear==player2MoveClear){
-                return 0;
-            }
-            // Player 2 wins
-            else return 2;
+        // Player 1 rock wins
+        if (player1MoveClear==rock && (player2MoveClear==scissors || player2MoveClear==lizard)) {
+            return 1;
         }
+        // Player 1 paper wins
+        else if (player1MoveClear==paper && (player2MoveClear==rock || player2MoveClear==spock)) {
+            return 1;
+        }
+        // Player 1 scissors wins
+        else if (player1MoveClear==scissors && (player2MoveClear==paper || player2MoveClear==lizard)) {
+            return 1;
+        }
+        // Player 1 spock wins
+        else if (player1MoveClear==spock && (player2MoveClear==scissors || player2MoveClear==rock)) {
+            return 1;
+        }
+        // Player 1 lizard wins
+        else if (player1MoveClear==lizard && (player2MoveClear==paper || player2MoveClear==spock)) {
+            return 1;
+        }
+        // Draw
+        else if (player1MoveClear==player2MoveClear){
+            return 0;
+        }
+        // Player 2 wins
+        else return 2;
     }
 
     // Both player made their move
@@ -150,29 +146,31 @@ contract RPSLS{
             cheatsPlayer2 = !(keccak256(abi.encodePacked(movePassword)) == player2MoveHash);
             player2MoveClear = keccak256(abi.encodePacked(move));
         }
-        if (isUnrollReady()) unroll();
+        unroll();
     }
 
     // Both player revealed their move and did not cheat
-    function isUnrollReady() public constant returns (bool){
+    function isUnrollReady() public constant returns(bool){
         return (!cheatsPlayer1 && !cheatsPlayer2);
     }
 
-    function unroll() public {
-        int winner = getWinner();
-        if (winner==1) {
-            player1.transfer(address(this).balance);
-            emit unrolled(player1);
+    function unroll() private {
+        if (isUnrollReady()){
+            int winner = getWinner();
+            if (winner==1) {
+                player1.transfer(address(this).balance);
+                emit unrolled(player1);
+            }
+            else if (winner==2) {
+                player2.transfer(address(this).balance);
+                emit unrolled(player2);
+            }
+            else {
+                player1.transfer(address(this).balance/2);
+                player2.transfer(address(this).balance);
+                emit unrolled(0);
+            }
+            resetGame();
         }
-        else if (winner==2) {
-            player2.transfer(address(this).balance);
-            emit unrolled(player2);
-        }
-        else {
-            player1.transfer(address(this).balance/2);
-            player2.transfer(address(this).balance);
-            emit unrolled(0);
-        }
-        resetGame();
     }
 }
